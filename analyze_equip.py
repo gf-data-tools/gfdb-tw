@@ -6,7 +6,7 @@ from pathlib import Path
 from datetime import datetime
 from collections import defaultdict
 
-log_dir = Path('logs/equip')
+log_dir = Path('../elisa/logs/equip')
 output_file = Path('equip.csv')
 if output_file.exists():
     full_record_df = pd.read_csv(output_file).set_index('id',drop=False)
