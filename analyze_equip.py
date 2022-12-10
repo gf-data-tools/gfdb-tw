@@ -65,6 +65,8 @@ for record_file in sorted(log_dir.iterdir()):
     last_record = record_file.name
     print(last_record, end='\r')
     record_df = pd.read_json(record_file,orient='records',convert_dates=False).query(f'id>{last_id}').sort_values(by='id').set_index('id',drop=False)
+    record_df['gun_rank'] = record_df['gun_id'].apply(lambda gun_id: gamedata['gun'][gun_id]['rank'])
+    record_df['gun_name'] = record_df['gun_id'].apply(lambda gun_id: gamedata['gun'][gun_id]['name'])
     if len(record_df)==0:
         continue
     last_id = record_df['id'].max()
@@ -77,7 +79,7 @@ for record_file in sorted(log_dir.iterdir()):
         counter = defaultdict(int)
         for i,record in record_df[::-1].iterrows():
             gun_id = record['gun_id']
-            if gamedata['gun'][gun_id]['rank']>=level:
+            if record['gun_rank']>=level:
                 counter[gun_id]+=1
                 record_df.at[i,f'trust_{level}'] = True
                 if counter[gun_id] >= 10:
