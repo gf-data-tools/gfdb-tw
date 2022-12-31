@@ -1,5 +1,6 @@
 logs
 analyze_equip.ipynb
+*.xlsx
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
