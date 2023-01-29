@@ -15,9 +15,8 @@
     ],
     "equip": [
         {"start_time": "2022-10-28 10:00:00", "identifier": 0, "note": "新装备（脚架）"},
-        {"start_time": "2022-11-18 10:00:00", "identifier": 1, "note": "新装备（低星）"},
-        {"start_time": "2023-01-24 00:00:00", "identifier": 2, "note": "圣建"},
-        {"start_time": "2023-01-26 00:00:00", "identifier": 1, "note": "新装备（低星）"},
+        {"start_time": "2023-01-24 00:00:00", "identifier": 1, "note": "圣建"},
+        {"start_time": "2023-01-26 00:00:00", "identifier": 0, "note": "新装备（脚架）"},
     ],
     "fairy": [
         {"start_time": "2022-10-28 10:00:00", "identifier": 0, "note": "开始记录"},
