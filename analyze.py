@@ -7,7 +7,10 @@ import gf_utils
 import pandas as pd
 from gf_utils.stc_data import get_stc_data
 
-gamedata = get_stc_data("../GF_Data_Tools/data/ch/formatted/json")
+gamedata = get_stc_data(
+    ["../GF_Data_Tools/data/ch/stc", "../GF_Data_Tools/data/ch/catchdata"],
+    "../GF_Data_Tools/data/ch/asset/table",
+)
 # %% fairy log
 print("logging fairy")
 log_dir = Path("../Elisa/logs/equip")
