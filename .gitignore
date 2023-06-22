@@ -1,5 +1,8 @@
 logs
 *.xlsx
+.vscode
+.idea
+.ignore
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
