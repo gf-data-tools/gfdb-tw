@@ -1,4 +1,6 @@
 logs
+tmp
+.vscode
 *.xlsx
 # Byte-compiled / optimized / DLL files
 __pycache__/
