@@ -1,6 +1,17 @@
 # %%
 import pandas as pd
-from sqlalchemy import Column, and_, create_engine, func, or_, select, text, union_all
+from sqlalchemy import (
+    Column,
+    Float,
+    and_,
+    cast,
+    create_engine,
+    func,
+    or_,
+    select,
+    text,
+    union_all,
+)
 from sqlalchemy.orm import Session
 
 from database import Equip, EquipDev, Fairy, FairyTalent, Gun, GunDev
@@ -207,12 +218,12 @@ class RecordAnalyzer:
                 rank_count.c.rank,
                 gun_count.c.gun_id,
                 Gun.name,
+                cast((mean * 100).label("mean%"), Float),
+                cast((stdev * 100).label("stdev%"), Float),
                 rank_total.c.rank_total,
                 rank_count.c.rank_count,
                 gun_total.c.gun_total,
                 gun_count.c.gun_count,
-                mean.label("mean"),
-                stdev.label("stdev"),
             )
             .select_from(rank_count)
             .join(
@@ -450,10 +461,10 @@ class RecordAnalyzer:
                     equip_count.c.rank,
                     equip_count.c.equip_id,
                     Equip.name,
+                    cast((mean * 100).label("mean%"), Float),
+                    cast((stdev * 100).label("stdev%"), Float),
                     equip_total.c.equip_total,
                     equip_count.c.equip_count,
-                    mean.label("mean"),
-                    stdev.label("stdev"),
                 )
                 .select_from(equip_total)
                 .join(
@@ -607,10 +618,10 @@ class RecordAnalyzer:
                     fairy_total.c.input_level,
                     fairy_count.c.fairy_id,
                     Fairy.name,
+                    cast((mean * 100).label("mean%"), Float),
+                    cast((stdev * 100).label("stdev%"), Float),
                     fairy_total.c.fairy_total,
                     fairy_count.c.fairy_count,
-                    mean.label("mean"),
-                    stdev.label("stdev"),
                 )
                 .select_from(fairy_total)
                 .join(
@@ -648,10 +659,10 @@ if __name__ == "__main__":
         "events.hjson",
     )
     df = analyzer.analyze_gun_nm()
-    df.to_csv("gun_nm.csv", index=False)
+    df.to_csv("analyze/gun_nm.csv", index=False, float_format="%.3f")
     df = analyzer.analyze_gun_sp()
-    df.to_csv("gun_sp.csv", index=False)
+    df.to_csv("analyze/gun_sp.csv", index=False, float_format="%.3f")
     df = analyzer.analyze_equip()
-    df.to_csv("equip.csv", index=False)
+    df.to_csv("analyze/equip.csv", index=False, float_format="%.3f")
     df = analyzer.analyze_fairy()
-    df.to_csv("fairy.csv", index=False)
+    df.to_csv("analyze/fairy.csv", index=False, float_format="%.3f")
