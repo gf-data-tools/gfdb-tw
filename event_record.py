@@ -1,56 +1,67 @@
+from __future__ import annotations
+
+from collections import defaultdict
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
+from typing import *
 
 import hjson
-import pandas as pd
+
+
+@dataclass(init=False)
+class Event:
+    start_time: datetime
+    end_time: datetime
+    note: str
+
+    def __init__(self: Event, start_time: str, end_time: str, note: str):
+        self.note = note
+        self.start_time = datetime.fromisoformat(start_time)
+        self.end_time = datetime.fromisoformat(end_time)
+
+
+@dataclass
+class Period:
+    times: Iterable[tuple[datetime]] = field(default_factory=list)
+    note: str = ""
+
+    @property
+    def query(self: Period) -> str:
+        return " or ".join(
+            f"({s.timestamp():.0f}<dev_time and dev_time<{e.timestamp():.0f})"
+            for s, e in self.times
+        )
 
 
 class EventRecord:
-    def __init__(self, event_file: Path | str):
-        event_file = Path(event_file).resolve()
-        event_data = hjson.loads(event_file.read_text())
-        self.data: dict[pd.DataFrame] = {}
-        for k, rec in event_data.items():
-            df = pd.DataFrame.from_records(rec)
-            df["start_time"] = pd.to_datetime(df["start_time"])
-            df["end_time"] = df["start_time"].shift(
-                -1, fill_value=datetime.now().replace(microsecond=0)
-            )
-            self.data[k] = df
+    def __init__(self, file: str | Path) -> None:
+        self.data = hjson.loads(Path(file).read_text())
 
-    def get_event_info(self, target, identifier: int):
-        df: pd.DataFrame = self.data[target].query(f"identifier=={identifier}")
-        if not len(df):
-            return None
-        note = df.iloc[0]["note"]
-        periods = (
-            (
-                r["start_time"].timestamp() - 3600 * 8,
-                r["end_time"].timestamp() - 3600 * 8,
-            )
-            for _, r in df.iterrows()
+    def __getitem__(self, key: str) -> list[Period]:
+        data = self.data[key]
+        events = [Event(**x) for x in data]
+        timestamps = sorted(
+            set.union({x.start_time for x in events}, {x.end_time for x in events})
         )
-        query_cond = " or ".join(
-            [f"({s:.0f}<dev_time and dev_time<{e:.0f})" for s, e in periods]
-        )
-        return note, query_cond
-
-    def __getitem__(self, target):
-        if target not in self.data:
-            raise KeyError(target)
-        return self.__iterator(target)
-
-    def __iterator(self, target):
-        i = 0
-        while True:
-            ret = self.get_event_info(target, i)
-            if not ret:
-                return
-            yield ret
-            i += 1
+        periods = defaultdict(Period)
+        for start, end in zip(timestamps[:-1], timestamps[1:]):
+            key_id = []
+            note = None
+            for i, event in enumerate(events):
+                if start >= event.start_time and end <= event.end_time:
+                    key_id.append(i)
+                    note = event.note
+            periods[tuple(key_id)].note = note
+            periods[tuple(key_id)].times.append((start, end))
+        assert len(periods) == len({x.note for x in periods.values()})
+        periods = sorted(periods.values(), key=lambda x: x.times[-1][0])
+        return periods
 
 
 if __name__ == "__main__":
     event_record = EventRecord("events.hjson")
-    for note, periods in event_record["gun_nm"]:
-        print(note, periods)
+    for k in ["gun_nm", "gun_sp", "equip", "fairy"]:
+        print(k)
+        for period in event_record[k]:
+            print(period.note, period.query, period.times)
