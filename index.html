@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Bootstrap Table Filter Example</title>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tablefilter/dist/tablefilter/tablefilter.js"></script>
+</head>
+<body>
+    <button id="gunnm">人形建造</button>
+    <button id="gunsp">人形重建</button>
+    <button id="equip">装备建造</button>
+    <button id="fairy">妖精建造</button>
+  <table id="table" class="table"></table>
+
+  <script>
+    const table = document.getElementById('table');
+
+    function load_table(name) {
+      Papa.parse(name, {
+        download: true,
+        header: true,
+        complete: (results) => {
+          const data = results.data;
+          const headers = Object.keys(data[0]);
+          let tableHTML = '<thead><tr>';
+          headers.forEach((header) => {
+            tableHTML += `<th>${header}</th>`;
+          });
+          tableHTML += '</tr></thead><tbody>';
+          data.slice(0, -1).forEach((row) => {
+            tableHTML += '<tr>';
+            headers.forEach((header) => {
+              tableHTML += `<td style="text-align: center;">${row[header]}</td>`;
+            });
+            tableHTML += '</tr>';
+          });
+          tableHTML += '</tbody>';
+          table.innerHTML = tableHTML;
+
+          const tf = new TableFilter(table, {  
+            base_path: 'https://cdn.jsdelivr.net/npm/tablefilter/dist/tablefilter/', 
+            sticky_headers: true,					// Sticky headers with overrides  
+            alternate_rows: true,					// Enable alternating rows  
+            mark_active_columns: {					// Mark active columns  
+                highlight_column: true,				// .. but only the column header  
+            },  
+            col_0:"select",
+            col_types: [
+                'formatted-number','formatted-number','formatted-number','formatted-number','formatted-number',
+                'formatted-number','formatted-number','formatted-number','formatted-number','formatted-number',
+                'formatted-number','formatted-number','formatted-number','formatted-number','formatted-number',
+                'formatted-number','formatted-number','formatted-number','formatted-number','formatted-number',
+            ],
+            col_widths: ['15em', '5em', '5em', '5em', '5em', '8em', '8em','8em','10em','6em','6em','8em','8em','8em','8em',],
+            extensions:[
+                { name: 'sort' }					// Sort requires to classify numeric columns using "col_types : [ 'numeric', String', ...],"  
+            ],  
+          });
+          tf.init();
+        }
+      });
+    }
+    
+    const gunnm = document.getElementById('gunnm');
+    const gunsp = document.getElementById('gunsp');
+    const equip = document.getElementById('equip');
+    const fairy = document.getElementById('fairy');
+    gunnm.addEventListener('click', ()=>{ load_table("gun_nm.csv"); });
+    gunsp.addEventListener('click', ()=>{ load_table("gun_sp.csv"); });
+    equip.addEventListener('click', ()=>{ load_table("equip.csv"); });
+    fairy.addEventListener('click', ()=>{ load_table("fairy.csv"); });
+  </script>
+</body>
+</html>
