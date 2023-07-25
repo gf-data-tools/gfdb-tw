@@ -32,7 +32,7 @@
           data.slice(0, -1).forEach((row) => {
             tableHTML += '<tr>';
             headers.forEach((header) => {
-              tableHTML += `<td>${row[header]}</td>`;
+              tableHTML += `<td style="text-align: center;">${row[header]}</td>`;
             });
             tableHTML += '</tr>';
           });
@@ -46,12 +46,14 @@
             mark_active_columns: {					// Mark active columns  
                 highlight_column: true,				// .. but only the column header  
             },  
+            col_0:"select",
             col_types: [
                 'formatted-number','formatted-number','formatted-number','formatted-number','formatted-number',
                 'formatted-number','formatted-number','formatted-number','formatted-number','formatted-number',
                 'formatted-number','formatted-number','formatted-number','formatted-number','formatted-number',
                 'formatted-number','formatted-number','formatted-number','formatted-number','formatted-number',
             ],
+            col_widths: ['15em', '5em', '5em', '5em', '5em', '8em', '8em','8em','10em','6em','6em','8em','8em','8em','8em',],
             extensions:[
                 { name: 'sort' }					// Sort requires to classify numeric columns using "col_types : [ 'numeric', String', ...],"  
             ],  
