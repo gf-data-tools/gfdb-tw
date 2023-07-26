@@ -616,7 +616,7 @@ class RecordAnalyzer:
                     fairy_total.c.mre,
                     fairy_total.c.part,
                     fairy_total.c.input_level,
-                    FairyType.name,
+                    FairyType.name.label("type"),
                     fairy_count.c.fairy_id,
                     Fairy.name,
                     cast((mean * 100).label("mean%"), Float),
