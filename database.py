@@ -191,7 +191,7 @@ class Fairy(Base):
     code: Mapped[str]
     description: Mapped[str]
     introduce: Mapped[str]
-    type: Mapped[int]
+    type: Mapped[int] = mapped_column(ForeignKey("fairy_type.id"))
     pow: Mapped[int]
     hit: Mapped[int]
     dodge: Mapped[int]
@@ -233,6 +233,13 @@ class FairyTalent(Base):
     rank: Mapped[int]
     type_id: Mapped[int]
     name: Mapped[str]
+
+
+class FairyType(Base):
+    __tablename__ = "fairy_type"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    en_name: Mapped[str]
 
 
 # %%

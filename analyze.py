@@ -14,7 +14,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Session
 
-from database import Equip, EquipDev, Fairy, FairyTalent, Gun, GunDev
+from database import Equip, EquipDev, Fairy, FairyType, Gun, GunDev
 from event_record import EventRecord
 
 
@@ -616,6 +616,7 @@ class RecordAnalyzer:
                     fairy_total.c.mre,
                     fairy_total.c.part,
                     fairy_total.c.input_level,
+                    FairyType.name,
                     fairy_count.c.fairy_id,
                     Fairy.name,
                     cast((mean * 100).label("mean%"), Float),
@@ -634,6 +635,7 @@ class RecordAnalyzer:
                     ),
                 )
                 .join(Fairy)
+                .join(FairyType)
                 .subquery("analyze")
             )
             analyze = (
@@ -658,11 +660,11 @@ if __name__ == "__main__":
         "sqlite+pysqlite:///../Elisa/logs/develop_log.db",
         "events.hjson",
     )
-    df = analyzer.analyze_gun_nm()
-    df.to_csv("analyze/gun_nm.csv", index=False, float_format="%.3f")
-    df = analyzer.analyze_gun_sp()
-    df.to_csv("analyze/gun_sp.csv", index=False, float_format="%.3f")
-    df = analyzer.analyze_equip()
-    df.to_csv("analyze/equip.csv", index=False, float_format="%.3f")
+    # df = analyzer.analyze_gun_nm()
+    # df.to_csv("analyze/gun_nm.csv", index=False, float_format="%.3f")
+    # df = analyzer.analyze_gun_sp()
+    # df.to_csv("analyze/gun_sp.csv", index=False, float_format="%.3f")
+    # df = analyzer.analyze_equip()
+    # df.to_csv("analyze/equip.csv", index=False, float_format="%.3f")
     df = analyzer.analyze_fairy()
     df.to_csv("analyze/fairy.csv", index=False, float_format="%.3f")
