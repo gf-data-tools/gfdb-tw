@@ -278,7 +278,7 @@ class RecordAnalyzer:
             analyze = self.analyze_gun_period_table(period_table)
 
             analyze = (
-                select(Column(f"{idx:03}{name}").label("event"), analyze)
+                select(Column(f"{idx:03} {name}").label("event"), analyze)
                 .where(analyze.c.rank_total > 5000)
                 .subquery()
             )
@@ -314,7 +314,7 @@ class RecordAnalyzer:
             analyze = self.analyze_gun_period_table(period_table)
 
             analyze = (
-                select(Column(f"{idx:03}{name}").label("event"), analyze)
+                select(Column(f"{idx:03} {name}").label("event"), analyze)
                 .where(analyze.c.rank_total > 2000)
                 .subquery()
             )
@@ -660,11 +660,11 @@ if __name__ == "__main__":
         "sqlite+pysqlite:///../Elisa/logs/develop_log.db",
         "events.hjson",
     )
-    # df = analyzer.analyze_gun_nm()
-    # df.to_csv("analyze/gun_nm.csv", index=False, float_format="%.3f")
-    # df = analyzer.analyze_gun_sp()
-    # df.to_csv("analyze/gun_sp.csv", index=False, float_format="%.3f")
-    # df = analyzer.analyze_equip()
-    # df.to_csv("analyze/equip.csv", index=False, float_format="%.3f")
+    df = analyzer.analyze_gun_nm()
+    df.to_csv("analyze/gun_nm.csv", index=False, float_format="%.3f")
+    df = analyzer.analyze_gun_sp()
+    df.to_csv("analyze/gun_sp.csv", index=False, float_format="%.3f")
+    df = analyzer.analyze_equip()
+    df.to_csv("analyze/equip.csv", index=False, float_format="%.3f")
     df = analyzer.analyze_fairy()
     df.to_csv("analyze/fairy.csv", index=False, float_format="%.3f")
