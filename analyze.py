@@ -660,11 +660,29 @@ if __name__ == "__main__":
         "sqlite+pysqlite:///../Elisa/logs/develop_log.db",
         "events.hjson",
     )
-    df = analyzer.analyze_gun_nm()
-    df.to_csv("analyze/gun_nm.csv", index=False, float_format="%.3f")
-    df = analyzer.analyze_gun_sp()
-    df.to_csv("analyze/gun_sp.csv", index=False, float_format="%.3f")
-    df = analyzer.analyze_equip()
-    df.to_csv("analyze/equip.csv", index=False, float_format="%.3f")
-    df = analyzer.analyze_fairy()
-    df.to_csv("analyze/fairy.csv", index=False, float_format="%.3f")
+    from logger_tt import logger
+    from sqlalchemy.exc import OperationalError
+
+    def keep_retry(func, file):
+        while True:
+            try:
+                df = func()
+                df.to_csv(file, index=False, float_format="%.3f")
+                break
+            except OperationalError:
+                pass
+            except:
+                logger.exception()
+
+    keep_retry(analyzer.analyze_gun_nm, "analyze/gun_nm.csv")
+    keep_retry(analyzer.analyze_gun_sp, "analyze/gun_sp.csv")
+    keep_retry(analyzer.analyze_equip, "analyze/equip.csv")
+    keep_retry(analyzer.analyze_fairy, "analyze/fairy.csv")
+    # df = analyzer.analyze_gun_nm()
+    # df.to_csv("analyze/gun_nm.csv", index=False, float_format="%.3f")
+    # df = analyzer.analyze_gun_sp()
+    # df.to_csv("analyze/gun_sp.csv", index=False, float_format="%.3f")
+    # df = analyzer.analyze_equip()
+    # df.to_csv("analyze/equip.csv", index=False, float_format="%.3f")
+    # df = analyzer.analyze_fairy()
+    # df.to_csv("analyze/fairy.csv", index=False, float_format="%.3f")
