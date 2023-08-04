@@ -299,7 +299,6 @@ class RecordAnalyzer:
 
         analyze_queries = []
         for idx, period in enumerate(eventrecord["gun_sp"]):
-            print(period)
             name = period.note
             time_tuple = [(a.timestamp(), b.timestamp()) for a, b in period.times]
 
@@ -669,10 +668,11 @@ if __name__ == "__main__":
                 df = func()
                 df.to_csv(file, index=False, float_format="%.3f")
                 break
-            except OperationalError:
-                pass
+            except OperationalError as e:
+                logger.error(e)
             except:
-                logger.exception()
+                logger.exception("Unknown Error")
+                raise
 
     keep_retry(analyzer.analyze_gun_nm, "analyze/gun_nm.csv")
     keep_retry(analyzer.analyze_gun_sp, "analyze/gun_sp.csv")
