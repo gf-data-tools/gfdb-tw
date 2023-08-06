@@ -669,7 +669,7 @@ if __name__ == "__main__":
                 df.to_csv(file, index=False, float_format="%.3f")
                 break
             except OperationalError as e:
-                logger.error(e)
+                logger.error(repr(e.orig))
             except:
                 logger.exception("Unknown Error")
                 raise
