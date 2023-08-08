@@ -26,15 +26,6 @@
     const dev_types = ["gun_nm","gun_sp","equip","fairy"]
     const dev_period_select = document.getElementById("dev_period")
 
-    tables.then((json)=>{
-      json["gun_nm"].forEach((name) => {
-        dev_period_select.innerHTML+=`<option value="/gun_nm/${name}.csv">${name}</option>`;
-      });
-      var name = json["gun_nm"][json["gun_nm"].length-1]
-      document.getElementById("dev_period").value=`/gun_nm/${name}.csv`
-      load_table(`/gun_nm/${name}.csv`)
-    })
-
     function select_type(){
       var dev_type = document.getElementById("dev_type").value;
       dev_period_select.innerHTML = ``;
@@ -47,6 +38,8 @@
         })
       )
     }
+
+    select_type()
 
     function select_period(){
       var file = document.getElementById("dev_period").value;
