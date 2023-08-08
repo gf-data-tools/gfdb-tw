@@ -10,13 +10,49 @@
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/tablefilter/dist/tablefilter/style/tablefilter.css" />
 </head>
 <body>
-    <button id="gunnm">人形建造</button>
-    <button id="gunsp">人形重建</button>
-    <button id="equip">装备建造</button>
-    <button id="fairy">妖精建造</button>
+    <!-- <button id="gunnm">人形建造</button> -->
+    <select name="dev_type" id="dev_type" title="建造类型" onchange="select_type()">
+      <option value="gun_nm">人形建造</option>
+      <option value="gun_sp">人形重建</option>
+      <option value="equip">装备建造</option>
+      <option value="fairy">人形建造</option>
+    </select>
+    <select name="dev_period" id="dev_period" title="建造时期" onchange="select_period()">
+    </select>
   <table id="table" class="table"></table>
 
   <script>
+    const tables = fetch('/tables.json').then((response) => response.json())
+    const dev_types = ["gun_nm","gun_sp","equip","fairy"]
+    const dev_period_select = document.getElementById("dev_period")
+
+    tables.then((json)=>{
+      json["gun_nm"].forEach((name) => {
+        dev_period_select.innerHTML+=`<option value="/gun_nm/${name}.csv">${name}</option>`;
+      });
+      var name = json["gun_nm"][json["gun_nm"].length-1]
+      document.getElementById("dev_period").value=`/gun_nm/${name}.csv`
+      load_table(`/gun_nm/${name}.csv`)
+    })
+
+    function select_type(){
+      var dev_type = document.getElementById("dev_type").value;
+      dev_period_select.innerHTML = ``;
+      tables.then((json)=>
+        json[dev_type].forEach((name) => {
+          dev_period_select.innerHTML+=`<option value="/${dev_type}/${name}.csv">${name}</option>`;
+          var name = json[dev_type][json[dev_type].length-1]
+          document.getElementById("dev_period").value=`/${dev_type}/${name}.csv`
+          load_table(`/${dev_type}/${name}.csv`)
+        })
+      )
+    }
+
+    function select_period(){
+      var file = document.getElementById("dev_period").value;
+      load_table(file)
+    }
+
     const table = document.getElementById('table');
 
     function load_table(name) {
@@ -86,14 +122,6 @@
       });
     }
     
-    const gunnm = document.getElementById('gunnm');
-    const gunsp = document.getElementById('gunsp');
-    const equip = document.getElementById('equip');
-    const fairy = document.getElementById('fairy');
-    gunnm.addEventListener('click', ()=>{ load_table("gun_nm.csv"); });
-    gunsp.addEventListener('click', ()=>{ load_table("gun_sp.csv"); });
-    equip.addEventListener('click', ()=>{ load_table("equip.csv"); });
-    fairy.addEventListener('click', ()=>{ load_table("fairy.csv"); });
   </script>
 </body>
 </html>

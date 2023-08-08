@@ -1,4 +1,8 @@
 # %%
+import json
+from datetime import datetime
+from pathlib import Path
+
 import pandas as pd
 from sqlalchemy import (
     Column,
@@ -23,6 +27,7 @@ class RecordAnalyzer:
     def __init__(self, engine_dir, record_dir):
         self.engine = create_engine(engine_dir)
         self.eventrecord = EventRecord(record_dir)
+        self.last_update = json.loads(Path("analyze/last_update.json").read_text())
 
     def analyze_gun_period_table(self, period_table):
         gun_cnt = (
@@ -259,11 +264,14 @@ class RecordAnalyzer:
         return analyze
 
     def analyze_gun_nm(self):
-        engine = self.engine
         eventrecord = self.eventrecord
+        last_update = datetime.fromisoformat(self.last_update["gun_nm"])
 
-        analyze_queries = []
+        print("analyzing gun_nm")
         for idx, period in enumerate(eventrecord["gun_nm"]):
+            if period.times[-1][-1] < last_update:
+                continue
+            print(f"{period.note=}")
             name = period.note
             time_tuple = [(a.timestamp(), b.timestamp()) for a, b in period.times]
 
@@ -283,22 +291,28 @@ class RecordAnalyzer:
                 .subquery()
             )
 
-            analyze_queries.append(analyze)
+            with Session(self.engine) as session:
+                res = session.query(analyze).all()
+                df = pd.DataFrame(res)
+                df.to_csv(
+                    f"analyze/gun_nm/{idx:03} {name}.csv",
+                    index=False,
+                    float_format="%.3f",
+                )
 
-        stmt = union_all(*[select(t) for t in analyze_queries])
-        with Session(self.engine) as session:
-            res = session.execute(stmt).all()
-
-        df = pd.DataFrame(res)
-
-        return df
+        self.last_update["gun_nm"] = str(datetime.now())
+        Path("analyze/last_update.json").write_text(
+            json.dumps(self.last_update, indent=2)
+        )
 
     def analyze_gun_sp(self):
-        engine = self.engine
         eventrecord = self.eventrecord
-
-        analyze_queries = []
+        last_update = datetime.fromisoformat(self.last_update["gun_sp"])
+        print("analyzing gun_sp")
         for idx, period in enumerate(eventrecord["gun_sp"]):
+            if period.times[-1][-1] < last_update:
+                continue
+            print(f"{period.note=}")
             name = period.note
             time_tuple = [(a.timestamp(), b.timestamp()) for a, b in period.times]
 
@@ -317,24 +331,31 @@ class RecordAnalyzer:
                 .where(analyze.c.rank_total > 2000)
                 .subquery()
             )
+            with Session(self.engine) as session:
+                res = session.query(analyze).all()
+                df = pd.DataFrame(res)
+                df.to_csv(
+                    f"analyze/gun_sp/{idx:03} {name}.csv",
+                    index=False,
+                    float_format="%.3f",
+                )
 
-            analyze_queries.append(analyze)
-
-        stmt = union_all(*[select(t) for t in analyze_queries])
-        with Session(self.engine) as session:
-            res = session.execute(stmt).all()
-
-        df = pd.DataFrame(res)
+        self.last_update["gun_sp"] = str(datetime.now())
+        Path("analyze/last_update.json").write_text(
+            json.dumps(self.last_update, indent=2)
+        )
 
         return df
 
     # %%
     def analyze_equip(self):
-        engine = self.engine
         eventrecord = self.eventrecord
+        last_update = datetime.fromisoformat(self.last_update["equip"])
 
-        analyze_queries = []
         for idx, period in enumerate(eventrecord["equip"]):
+            if period.times[-1][-1] < last_update:
+                continue
+            print(f"{period.note=}")
             # %%
             name = period.note
             time_tuple = [(a.timestamp(), b.timestamp()) for a, b in period.times]
@@ -483,22 +504,29 @@ class RecordAnalyzer:
                 .where(analyze.c.equip_total >= 1000)
                 .subquery()
             )
-            analyze_queries.append(analyze)
-        # %%
-        stmt = union_all(*[select(t) for t in analyze_queries])
-        with Session(self.engine) as session:
-            res = session.execute(stmt).all()
-        # %%
-        df = pd.DataFrame(res)
+            with Session(self.engine) as session:
+                res = session.query(analyze).all()
+                df = pd.DataFrame(res)
+                df.to_csv(
+                    f"analyze/equip/{idx:03} {name}.csv",
+                    index=False,
+                    float_format="%.3f",
+                )
 
-        return df
+        self.last_update["equip"] = str(datetime.now())
+        Path("analyze/last_update.json").write_text(
+            json.dumps(self.last_update, indent=2)
+        )
 
     def analyze_fairy(self):
-        engine = self.engine
         eventrecord = self.eventrecord
+        last_update = datetime.fromisoformat(self.last_update["fairy"])
 
-        analyze_queries = []
+        print("analyzing fairy")
         for idx, period in enumerate(eventrecord["fairy"]):
+            if period.times[-1][-1] < last_update:
+                continue
+            print(f"{period.note=}")
             # %%
             name = period.note
             time_tuple = [(a.timestamp(), b.timestamp()) for a, b in period.times]
@@ -642,15 +670,19 @@ class RecordAnalyzer:
                 .where(analyze.c.fairy_total >= 1000)
                 .subquery()
             )
-            analyze_queries.append(analyze)
-        # %%
-        stmt = union_all(*[select(t) for t in analyze_queries])
-        with Session(self.engine) as session:
-            res = session.execute(stmt).all()
-        # %%
-        df = pd.DataFrame(res)
+            with Session(self.engine) as session:
+                res = session.query(analyze).all()
+                df = pd.DataFrame(res)
+                df.to_csv(
+                    f"analyze/fairy/{idx:03} {name}.csv",
+                    index=False,
+                    float_format="%.3f",
+                )
 
-        return df
+        self.last_update["fairy"] = str(datetime.now())
+        Path("analyze/last_update.json").write_text(
+            json.dumps(self.last_update, indent=2)
+        )
 
 
 # %%
@@ -674,15 +706,17 @@ if __name__ == "__main__":
                 logger.exception("Unknown Error")
                 raise
 
-    keep_retry(analyzer.analyze_gun_nm, "analyze/gun_nm.csv")
-    keep_retry(analyzer.analyze_gun_sp, "analyze/gun_sp.csv")
-    keep_retry(analyzer.analyze_equip, "analyze/equip.csv")
-    keep_retry(analyzer.analyze_fairy, "analyze/fairy.csv")
-    # df = analyzer.analyze_gun_nm()
-    # df.to_csv("analyze/gun_nm.csv", index=False, float_format="%.3f")
-    # df = analyzer.analyze_gun_sp()
-    # df.to_csv("analyze/gun_sp.csv", index=False, float_format="%.3f")
-    # df = analyzer.analyze_equip()
-    # df.to_csv("analyze/equip.csv", index=False, float_format="%.3f")
-    # df = analyzer.analyze_fairy()
-    # df.to_csv("analyze/fairy.csv", index=False, float_format="%.3f")
+    # analyzer.analyze_gun_nm()
+    # analyzer.analyze_gun_sp()
+    # analyzer.analyze_equip()
+    # analyzer.analyze_fairy()
+
+    tables = {
+        dev_type: sorted(
+            [f.name[:-4] for f in Path(f"analyze/{dev_type}").glob("*.csv")]
+        )
+        for dev_type in ["gun_nm", "gun_sp", "equip", "fairy"]
+    }
+    Path("analyze/tables.json").write_text(
+        json.dumps(tables, indent=2, ensure_ascii=False)
+    )
