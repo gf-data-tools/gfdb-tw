@@ -349,6 +349,7 @@ class RecordAnalyzer:
 
     # %%
     def analyze_equip(self):
+        print("analyzing equip")
         eventrecord = self.eventrecord
         last_update = datetime.fromisoformat(self.last_update["equip"])
 
@@ -706,10 +707,10 @@ if __name__ == "__main__":
                 logger.exception("Unknown Error")
                 raise
 
-    # analyzer.analyze_gun_nm()
-    # analyzer.analyze_gun_sp()
-    # analyzer.analyze_equip()
-    # analyzer.analyze_fairy()
+    analyzer.analyze_gun_nm()
+    analyzer.analyze_gun_sp()
+    analyzer.analyze_equip()
+    analyzer.analyze_fairy()
 
     tables = {
         dev_type: sorted(
