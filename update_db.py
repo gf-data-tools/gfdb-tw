@@ -10,6 +10,7 @@ gamedata = get_stc_data(
 )
 with sqlite3.connect("../Elisa/logs/develop_log.db") as con:
     for k in gamedata:
+        print(k)
         if not gamedata[k]:
             continue
         if isinstance(gamedata[k], list):
