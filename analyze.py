@@ -287,7 +287,7 @@ class RecordAnalyzer:
 
             analyze = (
                 select(Column(f"{idx:03} {name}").label("event"), analyze)
-                .where(analyze.c.rank_total > 1000)
+                .where(analyze.c.rank_total > 5000)
                 .subquery()
             )
 
